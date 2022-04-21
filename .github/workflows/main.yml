@@ -39,4 +39,4 @@ jobs:
         run: source setup.sh
         
       - name: Test checkRequirements
-        run: python3 tests/testCheck.py
+        run: python3 tests/testChecks.py
