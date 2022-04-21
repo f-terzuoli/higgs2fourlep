@@ -1,0 +1,40 @@
+11/04/2022 12:27:35 INFO: 'PyROOT' installed and correcly set
+11/04/2022 12:27:35 INFO: ROOT version is 6.26/00 >= 6.22/00 minimum required.
+11/04/2022 12:27:35 INFO: 'Sklearn' installed
+11/04/2022 12:27:36 INFO: 'XGBoost' installed
+11/04/2022 12:27:36 INFO: 'PyYaml' installed
+11/04/2022 12:27:36 INFO: 'Munch' installed
+11/04/2022 12:27:36 INFO: Loading analysis settings from conf.yaml ...
+11/04/2022 12:27:36 INFO: Current YAML file contents: 
+InputAnalysisJSONFile: ../input_files.json
+InputOpenDataURL: https://atlas-opendata.web.cern.ch/atlas-opendata/samples/2020/
+Luminosity: 10064.0
+NThreads: 8
+OutputHistosPath: ../Histograms
+OutputPlotsStructure: ../output_structure.json
+OutputYelds: ../Yelds
+PrepareMLTraining: true
+SaveSkimmedNTuples: false
+SkimmedNtuplesPath: ../Skimmed_NTuples
+
+11/04/2022 12:27:36 INFO: Found JSON input file at ../input_files.json
+11/04/2022 12:27:37 INFO: HTTP Status OK for https://atlas-opendata.web.cern.ch/atlas-opendata/samples/2020/
+11/04/2022 12:27:37 INFO: Found JSON output plots file at ../output_structure.json
+11/04/2022 12:27:37 WARNING: Yelds output directory already exists: files might be overwritten
+11/04/2022 12:27:37 WARNING: Histos output directory already exists: files might be overwritten
+11/04/2022 12:27:37 INFO: SaveSkimmedNTuples flag correctly set
+11/04/2022 12:27:37 INFO: PrepareMLTraining flag correctly set
+11/04/2022 12:27:37 WARNING: NTuples output directory already exists: files might be overwritten
+11/04/2022 12:27:37 INFO: NThreads correctly set.
+11/04/2022 12:27:37 INFO: Luminosity correctly set.
+11/04/2022 12:33:11 INFO: Retain rates written to ../Yelds/RetainRates_4l.log
+11/04/2022 12:33:11 INFO: Retain rates written to ../Yelds/RetainRates_4e.log
+11/04/2022 12:33:11 INFO: Retain rates written to ../Yelds/RetainRates_4mu.log
+11/04/2022 12:33:11 INFO: Retain rates written to ../Yelds/RetainRates_2e2mu.log
+11/04/2022 12:33:11 INFO: Retain rates written to ../Yelds/RetainRates_2mu2e.log
+11/04/2022 12:33:11 INFO: Retain rates written to ../Yelds/RetainRates_4l0j.log
+11/04/2022 12:33:11 INFO: Retain rates written to ../Yelds/RetainRates_4l1j.log
+11/04/2022 12:33:11 INFO: Retain rates written to ../Yelds/RetainRates_4l2j.log
+11/04/2022 12:36:37 INFO: Found JSON input file at ../input_filesBDT.json
+11/04/2022 12:36:37 INFO: Found JSON output plots file at ../output_structureBDT.json
+11/04/2022 12:37:36 INFO: Analysis and plot run in: 0:10:00.745448

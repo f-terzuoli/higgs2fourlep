@@ -1,0 +1,10 @@
+InputAnalysisJSONFile:  ./input_files.json
+InputOpenDataURL:          "https://atlas-opendata.web.cern.ch/atlas-opendata/samples/2020/"
+OutputPlotsStructure:   ./output_structure.json
+OutputYelds:            ./Yelds
+OutputHistosPath:       ./Histograms
+SaveSkimmedNTuples:     False
+PrepareMLTraining:      True
+SkimmedNtuplesPath:     ./Skimmed_NTuples
+NThreads:               8
+Luminosity:             10064.0 #[ab-1]

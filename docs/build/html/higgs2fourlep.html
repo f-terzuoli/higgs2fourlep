@@ -1,0 +1,507 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>higgs2fourlep package &#8212; higgs_analysis 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to higgs_analysis’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="higgs2fourlep-package">
+<h1>higgs2fourlep package<a class="headerlink" href="#higgs2fourlep-package" title="Permalink to this headline">¶</a></h1>
+<section id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-higgs2fourlep.XGBoostHiggs">
+<span id="higgs2fourlep-xgboosthiggs-module"></span><h2>higgs2fourlep.XGBoostHiggs module<a class="headerlink" href="#module-higgs2fourlep.XGBoostHiggs" title="Permalink to this headline">¶</a></h2>
+<p>This module manages the Machine Learning aspect of the Higgs analysis. It trains and tests the XGBoost Classifier and apllies it to the real data sample.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="higgs2fourlep.XGBoostHiggs.apply_bdt">
+<span class="sig-prename descclassname"><span class="pre">higgs2fourlep.XGBoostHiggs.</span></span><span class="sig-name descname"><span class="pre">apply_bdt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainedtree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.XGBoostHiggs.apply_bdt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for applying the trained XGBClassifier on the real data sample, after it is converted to Numpy multidimentional arrays.
+It is also re-applied to the testing samples. Then all the datasets are reconverted as ROOT::RDataframe, with the addition of the discriminating variable.
+It makes use of an internal instance of HiggsProcessor for producing the outputs.
+The 4-lepton invariant mass is plotted using the HiggsProcessor.plotHistos() method and the the mass measurement extracted via HiggsProcessor.fitMass().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cfg</strong> (<a class="reference internal" href="#higgs2fourlep.loadconfig.AnalysisCfg" title="higgs2fourlep.loadconfig.AnalysisCfg"><em>AnalysisCfg</em></a>) – The loaded configuration settings.</p></li>
+<li><p><strong>trainedtree</strong> (<em>XGBClassifier</em>) – trained XGBClassifier</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p>RuntimeError if some sample contains no data. It is handled by striking down the sample from the analysis workflow.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="higgs2fourlep.XGBoostHiggs.load_data">
+<span class="sig-prename descclassname"><span class="pre">higgs2fourlep.XGBoostHiggs.</span></span><span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">testtrain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.XGBoostHiggs.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method loading the data from the train/test samples as Numpy arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cfg</strong> (<a class="reference internal" href="#higgs2fourlep.loadconfig.AnalysisCfg" title="higgs2fourlep.loadconfig.AnalysisCfg"><em>AnalysisCfg</em></a>) – The loaded configuration settings.</p></li>
+<li><p><strong>testtrain</strong> (<em>str</em>) – String identifing if ‘Training’ or ‘Testing’ samples are to be loaded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>x(<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) - input observables to the boosted decision tree</p></li>
+<li><p>y(<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) - boolean discrimination between signal and background</p></li>
+<li><p>w(<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) - weight of every event processed</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="higgs2fourlep.XGBoostHiggs.traintest">
+<span class="sig-prename descclassname"><span class="pre">higgs2fourlep.XGBoostHiggs.</span></span><span class="sig-name descname"><span class="pre">traintest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.XGBoostHiggs.traintest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for training and testing the XGBClassifier, computing and saving the ROC Curve, the learning curve, the Accuracy and the F1-Score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cfg</strong> (<a class="reference internal" href="#higgs2fourlep.loadconfig.AnalysisCfg" title="higgs2fourlep.loadconfig.AnalysisCfg"><em>AnalysisCfg</em></a>) – The loaded configuration settings.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>trained XGBClassifier</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>XGBClassifier</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-higgs2fourlep.checkRequirements">
+<span id="higgs2fourlep-checkrequirements-module"></span><h2>higgs2fourlep.checkRequirements module<a class="headerlink" href="#module-higgs2fourlep.checkRequirements" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="higgs2fourlep.checkRequirements.checkRequirements">
+<span class="sig-prename descclassname"><span class="pre">higgs2fourlep.checkRequirements.</span></span><span class="sig-name descname"><span class="pre">checkRequirements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.checkRequirements.checkRequirements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if required modules are correctly installed and available.</p>
+</dd></dl>
+
+</section>
+<section id="module-higgs2fourlep.loadconfig">
+<span id="higgs2fourlep-loadconfig-module"></span><h2>higgs2fourlep.loadconfig module<a class="headerlink" href="#module-higgs2fourlep.loadconfig" title="Permalink to this headline">¶</a></h2>
+<p>This module manages the storage and the checks for loading the correct settings which will be deployed in the Higgs analysis.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">higgs2fourlep.loadconfig.</span></span><span class="sig-name descname"><span class="pre">AnalysisCfg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loaded_conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for loading the parsed .yaml file and cheking if the settings have acceptable values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>loaded_conf</strong> – the Munch dictionary containing the settings.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg.InputAnalysisJSONFile">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">InputAnalysisJSONFile</span></span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg.InputAnalysisJSONFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the path where the path of the JSON file containg all the .root file to be analized. If the file is not found, it wll revert back to the previous value, if already set, otherwise the program will shutdown.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg.InputOpenDataURL">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">InputOpenDataURL</span></span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg.InputOpenDataURL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the URL where ATLAS OpenData are located. If an HTTP error occurs, it will be reverted back to previous value, if already set, otherwise the program wll shutdown.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg.Luminosity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Luminosity</span></span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg.Luminosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the integrated luminosity of all the dataset. If incorrectly set, it will revert back to the previous value, if previously set, otherwise the program will shutdown.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg.NThreads">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NThreads</span></span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg.NThreads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the number of threads available for ROOT implicit multi-threading. If incorrectly set it will be reverted to default 0, thus disabling implicit multi-threading.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg.OutputHistosPath">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OutputHistosPath</span></span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg.OutputHistosPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the output folder where the histograms will be stored. If the path setting is empty or of wrong type, the default ./Histos path will be imposed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg.OutputPlotsStructure">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OutputPlotsStructure</span></span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg.OutputPlotsStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the path where the path of the JSON file containg all the structure of the output histograms for all the variables of interest. If the file is not found, it wll revert back to the previous value, if already set, otherwise the program will shutdown.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg.OutputYelds">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OutputYelds</span></span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg.OutputYelds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the output folder where the yelds will be stored. If the path setting is empty or of wrong type, the default ./Yelds path will be imposed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg.PrepareMLTraining">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PrepareMLTraining</span></span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg.PrepareMLTraining" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the flag for saving or not the .root Ntuples for ML training/testing. If the flag setting is empty or of wrong type, the default ‘False’ will be imposed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg.SaveSkimmedNTuples">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SaveSkimmedNTuples</span></span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg.SaveSkimmedNTuples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the flag for saving or not the .root Ntuples after bosons reconstruction. If the flag setting is empty or of wrong type, the default ‘False’ will be imposed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.AnalysisCfg.SkimmedNtuplesPath">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SkimmedNtuplesPath</span></span><a class="headerlink" href="#higgs2fourlep.loadconfig.AnalysisCfg.SkimmedNtuplesPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the output folder where the skimmed .root Ntuples will be stored. If the path setting is empty or of wrong type, the default ./Skimmed_Ntuples path will be imposed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.loadSettings">
+<span class="sig-prename descclassname"><span class="pre">higgs2fourlep.loadconfig.</span></span><span class="sig-name descname"><span class="pre">loadSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.loadconfig.loadSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the .yaml file and then load the settings in a AnalysisCfg object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_file</strong> (<em>str</em>) – the.yaml file path to be parsed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The loaded configuration settings.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#higgs2fourlep.loadconfig.AnalysisCfg" title="higgs2fourlep.loadconfig.AnalysisCfg">AnalysisCfg</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="higgs2fourlep.loadconfig.read_yaml">
+<span class="sig-prename descclassname"><span class="pre">higgs2fourlep.loadconfig.</span></span><span class="sig-name descname"><span class="pre">read_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.loadconfig.read_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the the parsed .yaml configuration file as a Munch dictionary where items can be accessed via “.” dot syntax.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_file</strong> (<em>str</em>) – the .yaml file path to be parsed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Parsed configuration file as Munch dictionary.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Munch(dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-higgs2fourlep.processData">
+<span id="higgs2fourlep-processdata-module"></span><h2>higgs2fourlep.processData module<a class="headerlink" href="#module-higgs2fourlep.processData" title="Permalink to this headline">¶</a></h2>
+<p>This module manages the workflow of the analysis, accessing the files to be analysed, filtering events and reconstructing the Higgs boson from its decay products, compute the yelds per signal category, plot the distribution of intrerst regarding the decay and performing a fit to measure the Higgs mass.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">higgs2fourlep.processData.</span></span><span class="sig-name descname"><span class="pre">HiggsProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class managing the Higgs Analysis flow. It relies on the “higgs.h” header file containing all the definition of the C++ functions for filtering and reconstructing the decay particles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>conf</strong> (<a class="reference internal" href="#higgs2fourlep.loadconfig.AnalysisCfg" title="higgs2fourlep.loadconfig.AnalysisCfg"><em>AnalysisCfg</em></a>) – The loaded configuration settings.</p>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>cfg</strong> – initial value: conf</p></li>
+<li><p><strong>initalized</strong> – flag indicating if the HiggsProcessor has loaded the necessary setting for starting the analysis</p></li>
+<li><p><strong>reconstructedHiggs</strong> – flag indicating if the the Higgs boson has already benn reconstructed and operation are available on its 4-vector</p></li>
+<li><p><strong>lumi</strong> – the integrated luminosity of the dataset</p></li>
+<li><p><strong>path</strong> – the URL where ATLAS Open Data is located</p></li>
+<li><p><strong>files</strong> – dictionary cointaining the input files, structured based on their location folder, physical process and containing information as cross-section of the process and sum-of-weights of MC simulations</p></li>
+<li><p><strong>processes</strong> – list containing the processes simulated via MC and the acquired data as ‘Data’</p></li>
+<li><p><strong>df</strong> – dictionary containing all the dataframe nodes for very input file to be analised</p></li>
+<li><p><strong>df_snapshot</strong> – dictionary containing all the dataframe nodes for very input file to saved in .root file as ROOT::Tree</p></li>
+<li><p><strong>df_training</strong> – dictionary containing all the dataframe nodes destined to be the training sample for the XGBoost</p></li>
+<li><p><strong>df_testing</strong> – dictionary containing all the dataframe nodes destined to be the testing sample for the XGBoost</p></li>
+<li><p><strong>df_1jet</strong> – dictionary containing all the dataframe nodes with events having at least 1 jet</p></li>
+<li><p><strong>df_2jet</strong> – dictionary containing all the dataframe nodes with events having at least 2 jets</p></li>
+<li><p><strong>histos</strong> – nested dictionary containing the histograms of all variables of interested for every file analised and for every region defined</p></li>
+<li><p><strong>xsecs</strong> – dictionary containing the cross-section for every MC analised</p></li>
+<li><p><strong>sumws</strong> – dictionary containing the sum-of-weights for every MC analised</p></li>
+<li><p><strong>samples</strong> – list containing all the files analised</p></li>
+<li><p><strong>count</strong> – nested dictionary containing the yelds counter for every region defined, every category of data defined (different Higgs production modes, data, zz_bkg, other_bkg) and at different steps of the analysis</p></li>
+<li><p><strong>count_w</strong> – the same as ‘count’ but MC events are weighted taking in consideration the integrated luminosity, the proccess cross-section and the sum-of-weights of the produced MC</p></li>
+<li><p><strong>regions</strong> – list containing the defined regions’ names</p></li>
+<li><p><strong>regionlabel</strong> – list containing the defined regions’ labels to appear in the output histograms</p></li>
+<li><p><strong>filterRegion</strong> – list of string containing the criteria defining the regions and to be passed to the ROOT::RDataframe::Filter method</p></li>
+<li><p><strong>particles</strong> – the name of the particles partecipating in the decay. It will be used to organize the OutputHisto folder where the histograms will be saved.</p></li>
+<li><p><strong>nodes</strong> – list of RDataframe Nodes, to be fed to ROOT::RDF::RunGraph, in order to parellize the anlisis on the different files.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.defineHistos">
+<span class="sig-name descname"><span class="pre">defineHistos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.defineHistos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for defining the histograms to be studied from the variables of interest for every file and region analysed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.fitMass">
+<span class="sig-name descname"><span class="pre">fitMass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bdt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.fitMass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for fitting the 4 lepton invariant mass using RooFit and extracting a measurement of the Higgs boson mass.</p>
+<p>It is an Unbinned Maximum Likelihood fit, where the background distribution is extracted via Kernel Density Estimation and the signal is modelled as a CrystalBall distribution. The parameters of the CrystalBall (except for the “mean”) and the fraction signal/bkg are fixed on the values extracted from the MC samples. The only free parameter is then the Higgs mass. The ‘bdt’ flag is for correctly accessing the counters whether fitMass() is invoked before XGBoost has enhaced the signal purity of the sample or after, thus correcly fixing the fraction signal/bkg.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bdt</strong> (<em>bool</em>) – Flag for plotting before or after XGBoost.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.initializeData">
+<span class="sig-name descname"><span class="pre">initializeData</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.initializeData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize istance attributes with configuration loaded from AnalysisCfg object.
+For every regions defined an initial counter is set for a yeld of the “untouched” data sets.
+Once all is correctly loaded the flag ‘initialized’ is set to True.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.merge_histos">
+<span class="sig-name descname"><span class="pre">merge_histos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.merge_histos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for merging the histograms of the same process category (different Higgs production modes, real data, zz_bkg, other_bkg).
+It is invoked by ‘plotHistos()’ method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>) – The category under which the samples are to be merged.</p></li>
+<li><p><strong>observable</strong> (<em>str</em>) – The name of the observed physical variable.</p></li>
+<li><p><strong>region</strong> (<em>str</em>) – The name of region.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The merged histogram.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ROOT::TH1D</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.merge_stat">
+<span class="sig-name descname"><span class="pre">merge_stat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.merge_stat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for merging the counters’ stats of the same process category (different Higgs production modes, real data, zz_bkg, other_bkg).
+It is invoked by ‘printStats()’ method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>) – The category under which the samples are to be merged.</p></li>
+<li><p><strong>counter</strong> (<em>dict</em>) – The dictionary of counters to be merged.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the sum of the merged counters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>double</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.plotHistos">
+<span class="sig-name descname"><span class="pre">plotHistos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z1z2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.plotHistos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for plotting the merged histograms of the same process category (different Higgs production modes, real data, zz_bkg, other_bkg) as a THStack and superimposing the real data distributions.
+The histograms will be saved in the configured output directory and organized by particle name.
+If the ‘z1z2’ flag is True then it wll be plotted the 2-dimentional histogram of mZ1 vs mZ2 (only real data).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>z1z2</strong> (<em>bool</em>) – Flag for plotting mZ1 vs mZ2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.prepareForML">
+<span class="sig-name descname"><span class="pre">prepareForML</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.prepareForML" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for creating the training/test samples for XGBoost.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.printStats">
+<span class="sig-name descname"><span class="pre">printStats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.printStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for printing the analysis yelds on file .log .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – The path where the yeld file will be stored.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.recoCut">
+<span class="sig-name descname"><span class="pre">recoCut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.recoCut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for selecting events using reconstructed variables.
+Additional selection on the reconstructed 4 lepton invarian mass, the Z and Z* mass and the direction separation of the paired leptons.
+An ulterior counter is put at this step for every region.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p>RuntimeError if the Higgs boson has not been recontructed before invoking this method and the program is shutdown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.runNodes">
+<span class="sig-name descname"><span class="pre">runNodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.runNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for triggering the loop over the samples using implicit multithreading of ROOT and also parallelize the loop over different samples.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.saveNTuples">
+<span class="sig-name descname"><span class="pre">saveNTuples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.saveNTuples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare the snapshot nodes for saving the NTuples in .root files. The action is set to ‘Lazy’ so that the snapshot does not trigger the loop over the samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ml</strong> (<em>bool</em>) – Flag for XGBoost training/test samples production. If set to ‘True’ every physical process sample is split in two different samples of equal population: one for training, the other for testing. If set to ‘False’ only one file will be produced per every physical process.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p>RuntimeError f Higgs has not been reconstructed before invoking this method and the program is shutdown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.skimRecoHiggs">
+<span class="sig-name descname"><span class="pre">skimRecoHiggs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.skimRecoHiggs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for reconstructing the Higgs boson and the two Z bosons.</p>
+<p>First is required a trigger on either electron or muon. Then ‘GoodLeptons’ are designed so that they satisfy the geometrical acceptance, good isolation and pt&gt;5GeV.
+Then events with 4 ‘GoodLeptons’, with neutral net charge and either 4e, 4#mu or 2e and 2#mu, are selected.
+Good jets are defined as those inside the geometrical acceptance and with pt&gt;30GeV.
+Additional selections are imposed on the leptons via GoodElectronsAndMuons function defined in Higgs4l.h, and the only those with high transverse momentum are selected.
+Then the Higgs is reconstructed paring the leptons as follows: two leptons of the same flavour and with invarinat mass closer to the Z mass are defines as the leading pair and reconstructed as the real Z boson. The remaning pair (subleading) is the virtual Z boson.</p>
+<p>Through the GenVect class of ROOT various observables are extracted from the reconstructed 4-vectors.
+An additional counter is then “positioned” at this point of the analysis for every defined region.
+The flag ‘reconstructedHiggs’ is set to True, and if the the AnalysisCfg is set to save the skimmed NTuples, .root files with the events hitherto survived and with all the reconstructed varibaales will be saved in the proper directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p>RuntimeError if the HiggsProcessor is not initialised before invoking this method and the program is shutdown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="higgs2fourlep.processData.HiggsProcessor.tightCut">
+<span class="sig-name descname"><span class="pre">tightCut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#higgs2fourlep.processData.HiggsProcessor.tightCut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for applying tighter cuts on reonstructed variables.
+Additional selection on the reconstructed 4 lepton invarian mass and jet multiplicity.
+An ulterior counter is put at this step for every region.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p>RuntimeError if the Higgs boson has not been recontructed before invoking this method and the program is shutdown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">higgs_analysis</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">higgs2fourlep package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modules">Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-higgs2fourlep.XGBoostHiggs">higgs2fourlep.XGBoostHiggs module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-higgs2fourlep.checkRequirements">higgs2fourlep.checkRequirements module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-higgs2fourlep.loadconfig">higgs2fourlep.loadconfig module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-higgs2fourlep.processData">higgs2fourlep.processData module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to higgs_analysis’s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Francesco Terzuoli.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/higgs2fourlep.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
