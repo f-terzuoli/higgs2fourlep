@@ -28,3 +28,9 @@ jobs:
       # Runs a single command using the runners shell
       - name: Installing ROOT
         run: brew install root
+        
+      - name: Installing OpenMP
+        run: brew install libomp
+        
+      - name: Installing Python dependencies
+        run: pip install -r docs/requirements.txt
