@@ -40,6 +40,9 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# List of modules unavailable to RTD build.
+autodoc_mock_imports = ["ROOT"]
+
 
 # -- Options for HTML output -------------------------------------------------
 
