@@ -34,3 +34,9 @@ jobs:
         
       - name: Installing Python dependencies
         run: pip3 install -r docs/requirements.txt
+        
+      - name: Installing the module higgsfourlep in Python
+        run: source setup.sh
+        
+      - name: Test checkRequirements
+        run: python3 tests/testCheck.py
