@@ -21,7 +21,7 @@ def checkRequirements():
         else:
             logger.info("ROOT version is {} >= 6.24/00 minimum required.".format(ROOT.gROOT.GetVersion()))
     except:
-        logger.fatal("Upgrade your ROOT version to at least 6.22/00.")
+        logger.fatal("Upgrade your ROOT version to at least 6.24/00.")
     
     try:
         import sklearn

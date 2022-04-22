@@ -140,6 +140,7 @@ class HiggsProcessor(object):
                 for r in self.regions:
                     self.count[r]['initial'][sample] = self.df[sample].Count()
                     self.count_w[r]['initial'][sample] =  self.df[sample].Sum("weight")
+        logger.info("HiggsProcessor initialized.")
         self.initialized = True
         return
     
@@ -175,6 +176,7 @@ class HiggsProcessor(object):
             else:
                 self.df_training[s] = self.df[s].Range(1,0,2).Snapshot("RecoTree", "{}/Training_{}.root".format(self.cfg.SkimmedNtuplesPath, s), colList, snapshotOptions)
                 self.df_testing[s] = self.df[s].Range(2,0,2).Snapshot("RecoTree", "{}/Testing_{}.root".format(self.cfg.SkimmedNtuplesPath, s), colList, snapshotOptions)
+        return
 
     def skimRecoHiggs(self):
         """
@@ -426,7 +428,7 @@ class HiggsProcessor(object):
                         f.write("Events weights for {}: {} -> {:.5f}+-{:.5f}\n\n".format(p, step, mergedstat_w[step],error[step]))
                     f.write("-----------------------------------------------------\n")
                 f.write("####################################################\n")
-                logger.info("Retain rates written to {}".format(file))
+            logger.info("Retain rates written to {}".format(file))
         return
                 
     def defineHistos(self):
@@ -1015,7 +1017,7 @@ class HiggsProcessor(object):
         model.plotOn(frame_data,Components={p2},MoveToBack=True, DrawOption="F", FillColor="kOrange")
         #Overlay the background+sig2 components of model with a dotted line
         model.plotOn(frame_data,Components={CBHiggs_data},LineStyle="--")
-        model.paramOn(frame_data, ROOT.RooFit.Format("NEU",ROOT.RooFit.AutoPrecision(2)), ROOT.RooFit.Layout(0.3,0.5, 0.7))
+        model.paramOn(frame_data, ROOT.RooFit.Format("NEU",ROOT.RooFit.AutoPrecision(2)))
         canv = ROOT.TCanvas("Canvas", "Canvas", 400, 400)
         canv.cd()
         ROOT.gPad.SetLeftMargin(0.18)

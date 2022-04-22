@@ -93,10 +93,10 @@ def traintest(cfg):
     
     """
     # Load data
-    x, y, w = load_data(cfg, 'Testing')
+    x, y, w = load_data(cfg, 'Training')
  
     # Load data
-    x_test, y_test, w_test = load_data(cfg, 'Training')
+    x_test, y_test, w_test = load_data(cfg, 'Testing')
     
     # Fit xgboost model
     from xgboost import XGBClassifier
@@ -156,6 +156,8 @@ def traintest(cfg):
     # show the plot
     plt.draw()
     
+    logger.info("XGBClassifier trained and tested. ROC curve and learning curve saved to output file.")
+    
     return bdt
     
 def apply_bdt(cfg, trainedtree):
@@ -196,7 +198,7 @@ def apply_bdt(cfg, trainedtree):
         if 'data' in s:
             Ntuples = "{}/Reco_{}.root".format(internalProcessor.cfg.SkimmedNtuplesPath,s)
         else:
-            Ntuples = "{}/Training_{}.root".format(internalProcessor.cfg.SkimmedNtuplesPath,s)
+            Ntuples = "{}/Testing_{}.root".format(internalProcessor.cfg.SkimmedNtuplesPath,s)
         
         try:
             data_df = ROOT.RDataFrame("RecoTree", Ntuples).Filter("m4l>110. && m4l<140 && weight>0")\
@@ -237,6 +239,7 @@ def apply_bdt(cfg, trainedtree):
                 internalProcessor.histos[s][r]['m4l'] = region_df.Histo1D(ROOT.RDF.TH1DModel(s, "m4l", 24, 80, 170), "m4l", "weight2")
         except RuntimeError:
             del internalProcessor.samples[s]
+            logger.warning(f"{s} has no events. Onward, {s} will be excluded from the analysis.")
             pass
     
     counting = internalProcessor.plotHistos(False)
@@ -255,6 +258,7 @@ def apply_bdt(cfg, trainedtree):
             f.write("Events weights for {}: {} -> {:.5f}+-{:.5f}\n\n".format(cat, 'XGBoost', weights, error_w))
             f.write("-----------------------------------------------------\n")
         f.write("####################################################\n")
+    logger.info(f"Yelds written to {cfg.OutputYelds}/RetainRates_BDG.log")
     return
  
 if __name__ == "__main__":
