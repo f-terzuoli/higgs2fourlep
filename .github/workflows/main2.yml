@@ -21,8 +21,8 @@ jobs:
     # The type of runner that the job will run on
     runs-on: macos-latest
     
-    env:
-      PYTHONPATH: "home/runner/work/higgs_analysis/higgs_analysis"
+    #env:
+    #  PYTHONPATH: "home/runner/work/higgs_analysis/higgs_analysis"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
