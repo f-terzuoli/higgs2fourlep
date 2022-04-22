@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'higgs_analysis'
+project = 'higgs2fourlep'
 copyright = '2022, Francesco Terzuoli'
 author = 'Francesco Terzuoli'
 

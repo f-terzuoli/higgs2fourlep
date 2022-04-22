@@ -1,6 +1,6 @@
 #XGBoostHiggs.py
 """
-This module manages the Machine Learning aspect of the Higgs analysis. It trains and tests the XGBoost Classifier and apllies it to the real data sample.
+This module manages the Machine Learning aspect of the Higgs analysis. It trains and tests the XGBoost Classifier and applies it to the real data sample.
 """
 
 import ROOT
@@ -160,10 +160,10 @@ def traintest(cfg):
     
 def apply_bdt(cfg, trainedtree):
     """
-    Method for applying the trained XGBClassifier on the real data sample, after it is converted to Numpy multidimentional arrays.
+    Method for applying the trained XGBClassifier on the real data sample, after it is converted to Numpy multidimentional array.
     It is also re-applied to the testing samples. Then all the datasets are reconverted as ROOT::RDataframe, with the addition of the discriminating variable.
     It makes use of an internal instance of HiggsProcessor for producing the outputs.
-    The 4-lepton invariant mass is plotted using the HiggsProcessor.plotHistos() method and the the mass measurement extracted via HiggsProcessor.fitMass().
+    The 4-lepton invariant mass is plotted using the :py:meth:`higgs2fourlep.processData.HiggsProcessor.plotHistos()` method and the the mass measurement extracted via :py:meth:`higgs2fourlep.processData.HiggsProcessor.fitMass()`.
     
     :param cfg: The loaded configuration settings.
     :type cfg: AnalysisCfg

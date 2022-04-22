@@ -1,6 +1,6 @@
 #processData.py
 """
-This module manages the workflow of the analysis, accessing the files to be analysed, filtering events and reconstructing the Higgs boson from its decay products, compute the yelds per signal category, plot the distribution of intrerst regarding the decay and performing a fit to measure the Higgs mass.
+This module manages the workflow of the analysis, accessing the files to be analysed, filtering events and reconstructing the Higgs boson from its decay products, compute the yelds per signal category, plot the distribution of interest regarding the decay and performing a fit to measure the Higgs mass.
 """
 
 import logging
@@ -21,30 +21,54 @@ class HiggsProcessor(object):
     :param conf: The loaded configuration settings.
     :type conf: AnalysisCfg
     
-    :ivar cfg: initial value: conf
-    :ivar initalized: flag indicating if the HiggsProcessor has loaded the necessary setting for starting the analysis
+    :ivar cfg: initial value: :param conf:
+    :vartype cfg: AnalysisCfg
+    :ivar initialized: flag indicating if the HiggsProcessor has loaded the necessary setting for starting the analysis
+    :vartype initialized: bool
     :ivar reconstructedHiggs: flag indicating if the the Higgs boson has already benn reconstructed and operation are available on its 4-vector
+    :vartype reconstructedHiggs: bool
     :ivar lumi: the integrated luminosity of the dataset
+    :vartype lumi: double
     :ivar path: the URL where ATLAS Open Data is located
+    :vartype path: str
     :ivar files: dictionary cointaining the input files, structured based on their location folder, physical process and containing information as cross-section of the process and sum-of-weights of MC simulations
-    :ivar processes: list containing the processes simulated via MC and the acquired data as 'Data'
-    :ivar df: dictionary containing all the dataframe nodes for very input file to be analised
+    :vartype files: dict
+    :ivar processes: list containing the processes simulated via MC and the acquired data as 'Data_<A,B,C,D>'
+    :vartype processes: list of str
+    :ivar df: dictionary containing all the dataframe nodes for very input file to be analysed
+    :vartype df: dict
     :ivar df_snapshot: dictionary containing all the dataframe nodes for very input file to saved in .root file as ROOT::Tree
+    :vartype df_snapshot: dict
     :ivar df_training: dictionary containing all the dataframe nodes destined to be the training sample for the XGBoost
+    :vartype df_training: dict
     :ivar df_testing: dictionary containing all the dataframe nodes destined to be the testing sample for the XGBoost
+    :vartype df_testing: dict
     :ivar df_1jet: dictionary containing all the dataframe nodes with events having at least 1 jet
+    :vartype df_1jet: dict
     :ivar df_2jet: dictionary containing all the dataframe nodes with events having at least 2 jets
-    :ivar histos: nested dictionary containing the histograms of all variables of interested for every file analised and for every region defined
-    :ivar xsecs: dictionary containing the cross-section for every MC analised
-    :ivar sumws: dictionary containing the sum-of-weights for every MC analised
-    :ivar samples: list containing all the files analised
+    :vartype df_2jet: dict
+    :ivar histos: nested dictionary containing the histograms of all variables of interested for every file analysed and for every region defined
+    :vartype histos: dict
+    :ivar xsecs: dictionary containing the cross-section for every MC analysed
+    :vartype histos: dict
+    :ivar sumws: dictionary containing the sum-of-weights for every MC analysed
+    :vartype sumws: dict
+    :ivar samples: list containing all the files analysed
+    :vartype samples: list of str
     :ivar count: nested dictionary containing the yelds counter for every region defined, every category of data defined (different Higgs production modes, data, zz_bkg, other_bkg) and at different steps of the analysis
-    :ivar count_w: the same as 'count' but MC events are weighted taking in consideration the integrated luminosity, the proccess cross-section and the sum-of-weights of the produced MC
+    :vartype count: dict
+    :ivar count_w: the same as :ivar count: but MC events are weighted taking in consideration the integrated luminosity, the process cross-section and the sum-of-weights of the produced MC
+    :vartype count_w: dict
     :ivar regions: list containing the defined regions' names
+    :vartype regions: list of str
     :ivar regionlabel: list containing the defined regions' labels to appear in the output histograms
-    :ivar filterRegion: list of string containing the criteria defining the regions and to be passed to the ROOT::RDataframe::Filter method
-    :ivar particles: the name of the particles partecipating in the decay. It will be used to organize the OutputHisto folder where the histograms will be saved.
-    :ivar nodes: list of RDataframe Nodes, to be fed to ROOT::RDF::RunGraph, in order to parellize the anlisis on the different files.
+    :vartype regionlabel: list of str
+    :ivar filterRegion: list of string containing the criteria defining the regions and to be passed to the :meth: `ROOT::RDataframe::Filter()` method
+    :vartype filterRegion: list of str
+    :ivar particles: list of the particles partecipating in the decay. It will be used to organize the OutputHisto folder where the histograms will be saved.
+    :vartype particles: list of str
+    :ivar nodes: list of RDataframe Nodes, to be fed to ROOT::RDF::RunGraph, in order to parellize the analysis on the different files.
+    :vartype nodes: list of :class:`ROOT::RDF::RNode`
     
     """
     def __init__(self, conf):
@@ -77,9 +101,9 @@ class HiggsProcessor(object):
 
     def initializeData(self):
         """
-        Initialize istance attributes with configuration loaded from AnalysisCfg object.
+        Initialize instance attributes with configuration loaded from :class:`AnalysisCfg` object.
         For every regions defined an initial counter is set for a yeld of the "untouched" data sets.
-        Once all is correctly loaded the flag 'initialized' is set to True.
+        Once all is correctly loaded the flag :ivar initialized: is set to True.
         
         """
         #ROOT.ROOT.EnableImplicitMT(self.cfg.NThreads)
@@ -125,7 +149,7 @@ class HiggsProcessor(object):
         
         :param ml: Flag for XGBoost training/test samples production. If set to 'True' every physical process sample is split in two different samples of equal population: one for training, the other for testing. If set to 'False' only one file will be produced per every physical process.
         :type ml: bool
-        :raises: RuntimeError f Higgs has not been reconstructed before invoking this method and the program is shutdown.
+        :raises: RuntimeError if Higgs has not been reconstructed before invoking this method and the program is shutdown.
         
         """
         try:
@@ -157,14 +181,14 @@ class HiggsProcessor(object):
         Method for reconstructing the Higgs boson and the two Z bosons.
         
         First is required a trigger on either electron or muon. Then 'GoodLeptons' are designed so that they satisfy the geometrical acceptance, good isolation and pt>5GeV.
-        Then events with 4 'GoodLeptons', with neutral net charge and either 4e, 4#mu or 2e and 2#mu, are selected.
+        Then events with 4 'GoodLeptons', with neutral net charge and either 4e, 4#mu or 2e+2#mu, are selected.
         Good jets are defined as those inside the geometrical acceptance and with pt>30GeV.
-        Additional selections are imposed on the leptons via GoodElectronsAndMuons function defined in Higgs4l.h, and the only those with high transverse momentum are selected.
-        Then the Higgs is reconstructed paring the leptons as follows: two leptons of the same flavour and with invarinat mass closer to the Z mass are defines as the leading pair and reconstructed as the real Z boson. The remaning pair (subleading) is the virtual Z boson.
+        Additional selections are imposed on the leptons via GoodElectronsAndMuons function defined in Higgs4l.h, and only those with high transverse momentum are selected.
+        Then the Higgs is reconstructed paring the leptons as follows: two leptons of the same flavour, opposite chaarge, and with invarinat mass closer to the Z mass are defined as the leading pair and reconstructed as the real Z boson. The remaning pair (subleading) is the virtual Z boson.
         
         Through the GenVect class of ROOT various observables are extracted from the reconstructed 4-vectors.
         An additional counter is then "positioned" at this point of the analysis for every defined region.
-        The flag 'reconstructedHiggs' is set to True, and if the the AnalysisCfg is set to save the skimmed NTuples, .root files with the events hitherto survived and with all the reconstructed varibaales will be saved in the proper directory.
+        The flag :ivar reconstructedHiggs: is set to True, and if the the :ivar cfg: is set to save the skimmed NTuples, .root files with the events hitherto survived, and with all the reconstructed variables, will be saved in the proper directory.
         
         :raises: RuntimeError if the HiggsProcessor is not initialised before invoking this method and the program is shutdown.
         
@@ -361,7 +385,7 @@ class HiggsProcessor(object):
     def merge_stat(self, label, counter):
         """
         Method for merging the counters' stats of the same process category (different Higgs production modes, real data, zz_bkg, other_bkg).
-        It is invoked by 'printStats()' method.
+        It is invoked by :py:meth:`printStats()` method.
         
         :param label: The category under which the samples are to be merged.
         :type label: str
@@ -379,7 +403,7 @@ class HiggsProcessor(object):
         
     def printStats(self, file_path):
         """
-        Method for printing the analysis yelds on file .log .
+        Method for printing the analysis yelds on file RetainRates_<region>.log .
         
         :param file_path: The path where the yeld file will be stored.
         :type file_path: str
@@ -408,7 +432,7 @@ class HiggsProcessor(object):
     def defineHistos(self):
             
         """
-        Method for defining the histograms to be studied from the variables of interest for every file and region analysed.
+        Method for defining the histograms of the variables of interest for every file and region analysed.
         
         """
         pi_inf = -ROOT.TMath.Pi()-0.01
@@ -562,7 +586,7 @@ class HiggsProcessor(object):
     def merge_histos(self, label, observable, region):
         """
         Method for merging the histograms of the same process category (different Higgs production modes, real data, zz_bkg, other_bkg).
-        It is invoked by 'plotHistos()' method.
+        It is invoked by :py:meth:`plotHistos()` method.
         
         :param label: The category under which the samples are to be merged.
         :type label: str
@@ -875,7 +899,7 @@ class HiggsProcessor(object):
         """
         Method for fitting the 4 lepton invariant mass using RooFit and extracting a measurement of the Higgs boson mass.
         
-        It is an Unbinned Maximum Likelihood fit, where the background distribution is extracted via Kernel Density Estimation and the signal is modelled as a CrystalBall distribution. The parameters of the CrystalBall (except for the "mean") and the fraction signal/bkg are fixed on the values extracted from the MC samples. The only free parameter is then the Higgs mass. The 'bdt' flag is for correctly accessing the counters whether fitMass() is invoked before XGBoost has enhaced the signal purity of the sample or after, thus correcly fixing the fraction signal/bkg.
+        It is an Unbinned Maximum Likelihood fit, where the background distribution is extracted via Kernel Density Estimation and the signal is modelled as a CrystalBall distribution. The parameters of the CrystalBall (except for the "mean") and the fraction signal/bkg are fixed on the values extracted from the MC samples. The only free parameter is then the Higgs mass. The 'bdt' flag is for correctly accessing the counters whether fitMass() is invoked before XGBoost has enhanced the signal purity of the sample or after, thus correcly fixing the fraction signal/bkg to yje correct value.
         
         :param bdt: Flag for plotting before or after XGBoost.
         :type bdt: bool

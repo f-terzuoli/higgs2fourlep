@@ -40,7 +40,7 @@ class AnalysisCfg(object):
     Class for loading the parsed .yaml file and cheking if the settings have acceptable values.
     
     :param loaded_conf: the Munch dictionary containing the settings.
-    :type config_file: Munch(dict)
+    :type loaded_conf: Munch(dict)
     """
     def __init__(self, loaded_conf):
         """
@@ -60,7 +60,9 @@ class AnalysisCfg(object):
     @property
     def InputAnalysisJSONFile(self):
         """
-        Get or set the path where the path of the JSON file containg all the .root file to be analized. If the file is not found, it wll revert back to the previous value, if already set, otherwise the program will shutdown.
+        Get or set the path where the path of the JSON file containg all the .root file to be analysed. If the file is not found, it will revert back to the previous value, if already set, otherwise the program will shutdown.
+        
+        :type: str
         """
         return self._InputAnalysisJSONFile
         
@@ -84,7 +86,9 @@ class AnalysisCfg(object):
     @property
     def InputOpenDataURL(self):
         """
-        Get or set the URL where ATLAS OpenData are located. If an HTTP error occurs, it will be reverted back to previous value, if already set, otherwise the program wll shutdown.
+        Get or set the URL where ATLAS OpenData are located. If an HTTP error occurs, it will be reverted back to the previous value, if already set, otherwise the program will shutdown.
+        
+        :type: str
         """
         return self._InputOpenDataURL
         
@@ -106,7 +110,9 @@ class AnalysisCfg(object):
     @property
     def OutputPlotsStructure(self):
         """
-        Get or set the path where the path of the JSON file containg all the structure of the output histograms for all the variables of interest. If the file is not found, it wll revert back to the previous value, if already set, otherwise the program will shutdown.
+        Get or set the path where the path of the JSON file containg all the structure of the output histograms for all the variables of interest. If the file is not found, it will revert back to the previous value, if already set, otherwise the program will shutdown.
+        
+        :type: str
         """
         return self._OutputPlotsStructure
     
@@ -131,6 +137,8 @@ class AnalysisCfg(object):
     def OutputYelds(self):
         """
         Get or set the output folder where the yelds will be stored. If the path setting is empty or of wrong type, the default ./Yelds path will be imposed.
+        
+        :type: str
         """
         return self._OutputYelds
         
@@ -154,6 +162,8 @@ class AnalysisCfg(object):
     @property
     def OutputHistosPath(self):
         """Get or set the output folder where the histograms will be stored. If the path setting is empty or of wrong type, the default ./Histos path will be imposed.
+        
+        :type: str
         """
         return self._OutputHistosPath
         
@@ -177,6 +187,8 @@ class AnalysisCfg(object):
     @property
     def SaveSkimmedNTuples(self):
         """Get or set the flag for saving or not the .root Ntuples after bosons reconstruction. If the flag setting is empty or of wrong type, the default 'False' will be imposed.
+        
+        :type: bool
         """
         return self._SaveSkimmedNTuples
         
@@ -192,6 +204,8 @@ class AnalysisCfg(object):
     @property
     def PrepareMLTraining(self):
         """Get or set the flag for saving or not the .root Ntuples for ML training/testing. If the flag setting is empty or of wrong type, the default 'False' will be imposed.
+        
+        :type: bool
         """
         return self._PrepareMLTraining
         
@@ -207,6 +221,8 @@ class AnalysisCfg(object):
     @property
     def SkimmedNtuplesPath(self):
         """Get or set the output folder where the skimmed .root Ntuples will be stored. If the path setting is empty or of wrong type, the default ./Skimmed_Ntuples path will be imposed.
+        
+        :type: str
         """
         return self._SkimmedNtuplesPath
             
@@ -234,6 +250,8 @@ class AnalysisCfg(object):
     def NThreads(self):
         """
         Get or set the number of threads available for ROOT implicit multi-threading. If incorrectly set it will be reverted to default 0, thus disabling implicit multi-threading.
+        
+        :type: int
         """
         return self._NThreads
         
@@ -250,6 +268,8 @@ class AnalysisCfg(object):
     def Luminosity(self):
         """
         Get or set the integrated luminosity of all the dataset. If incorrectly set, it will revert back to the previous value, if previously set, otherwise the program will shutdown.
+        
+        :type: double
         """
         return self._Luminosity
         
@@ -273,9 +293,9 @@ class AnalysisCfg(object):
 
 def loadSettings(config_file):
     """
-    Parse the .yaml file and then load the settings in a AnalysisCfg object.
+    Parse the .yaml file and then load the settings in a :py:class:`AnalysisCfg` object.
     
-    :param config_file: the.yaml file path to be parsed.
+    :param config_file: the .yaml file path to be parsed.
     :type config_file: str
     :return: The loaded configuration settings.
     :rtype: AnalysisCfg
