@@ -13,6 +13,8 @@ A Machine Learning algorithm is implemented for enhancing the signal purity over
 
 The project makes use of the package `pyROOT` and depends on `matplotlib`, `munch`, `PyYAML`, `sklearn` and `XGBoost`.
 
+Link to the `repository <https://github.com/f-terzuoli/higgs2fourlep>`.
+
 
 .. toctree::
    :maxdepth: 2
