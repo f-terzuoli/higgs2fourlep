@@ -4,7 +4,7 @@ from datetime import datetime
 
 start=datetime.now()
 #Initalize logger
-logging.basicConfig(filename='all.log', level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s', datefmt='%d/%m/%Y %H:%M:%S', filemode = "w+")
+logging.basicConfig(filename='AnalysisRun.log', level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s', datefmt='%d/%m/%Y %H:%M:%S', filemode = "w+")
 screen_handler = logging.StreamHandler(stream=sys.stdout)
 logging.getLogger().addHandler(screen_handler)
 
@@ -28,7 +28,8 @@ AnaVars.initializeData()
 AnaVars.skimRecoHiggs()
 
 #Prepare training/testing sample for ML with only loose selection hitherto deployed. Store also data samples on which the trained XGBClassifier will be applied.
-AnaVars.prepareForML()
+if AnaCfg.PrepareMLTraining:
+    AnaVars.prepareForML()
 
 #Ulterior selections
 AnaVars.recoCut()

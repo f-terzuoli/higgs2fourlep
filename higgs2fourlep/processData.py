@@ -890,7 +890,7 @@ class HiggsProcessor(object):
         Method for creating the training/test samples for XGBoost.
         
         """
-        self.saveNTuples(self.cfg.PrepareMLTraining)
+        self.saveNTuples(True)
         return
         
     def fitMass(self, bdt = False):
@@ -1050,6 +1050,10 @@ class HiggsProcessor(object):
         text2.DrawLatex(0.21, 0.77, "H #rightarrow ZZ* #rightarrow 4l")
         canv2.SaveAs(f"{self.cfg.OutputHistosPath}/fit_{step}.pdf(")
         
+        canv = ROOT.TCanvas(f"Canvas{step}", f"Canvas_{step}", 400, 400)
+        canv.cd()
+        ROOT.gPad.SetLeftMargin(0.18)
+        
         # Construct plot frame
         frame_data = x.frame(ROOT.RooFit.Title("Data"))
 
@@ -1062,7 +1066,7 @@ class HiggsProcessor(object):
         model.plotOn(frame_data,Name="zz",Components={p2},MoveToBack=True, DrawOption="F", FillColor="kOrange", LineWidth=0)
         #Signal component of model with a dashed line
         model.plotOn(frame_data,Name="higgs",Components={CBHiggs_data},LineStyle="--")
-        model.paramOn(frame_data, ROOT.RooFit.Format("NEU"),ROOT.RooFit.AutoPrecision(2), ROOT.RooFit.Layout(0.60,0.85, 0.95))
+        model.paramOn(frame_data, ROOT.RooFit.Format("NEU"),ROOT.RooFit.AutoPrecision(2), ROOT.RooFit.Layout(0.50,0.85, 0.9))
         frame_data.GetYaxis().SetTitleOffset(1.8)
         frame_data.Draw()
         
@@ -1098,7 +1102,7 @@ class HiggsProcessor(object):
         
         #Export the fits results redirecting the stout
         save = os.dup( sys.stdout.fileno() )
-        newout = open( f"{self.cfg.OutputHistosPath}/fit_mass.log", 'w' )
+        newout = open( f"{self.cfg.OutputHistosPath}/fit_mass_{step}.log", 'w' )
         os.dup2( newout.fileno(), sys.stdout.fileno() )
         print(f"############ FIT MASS @ {step} ##############")
         print("Signal CrystalBall fit")
