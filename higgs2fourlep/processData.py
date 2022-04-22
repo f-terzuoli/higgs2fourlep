@@ -994,7 +994,7 @@ class HiggsProcessor(object):
         frame.Draw()
         #Legend
         legend1 = None
-        legend1 = ROOT.TLegend(0.60, 0.74, 0.9, 0.9)
+        legend1 = ROOT.TLegend(0.63, 0.74, 0.9, 0.9)
         legend1.SetTextFont(42)
         legend1.SetFillStyle(0)
         legend1.SetBorderSize(0)
@@ -1025,7 +1025,7 @@ class HiggsProcessor(object):
         frame2.Draw()
         #Legend
         legend2 = None
-        legend2 = ROOT.TLegend(0.60, 0.74, 0.9, 0.9)
+        legend2 = ROOT.TLegend(0.63, 0.74, 0.9, 0.9)
         legend2.SetTextFont(42)
         legend2.SetFillStyle(0)
         legend2.SetBorderSize(0)
@@ -1096,17 +1096,18 @@ class HiggsProcessor(object):
         
         canv.SaveAs(f"{self.cfg.OutputHistosPath}/fit_{step}.pdf)")
         
-        #Export the fits results
-        stdout = sys.stdout
-        sys.stdout = open(f"{self.cfg.OutputHistosPath}/fit_mass.log", 'w')
+        #Export the fits results redirecting the stout
+        save = os.dup( sys.stdout.fileno() )
+        newout = open( f"{self.cfg.OutputHistosPath}/fit_mass.log", 'w' )
+        os.dup2( newout.fileno(), sys.stdout.fileno() )
         print(f"############ FIT MASS @ {step} ##############")
         print("Signal CrystalBall fit")
         fitHiggs.Print("v")
         print("Signal data fit")
         fitdata.Print("v")
         print(f"Fraction sig/(sig.+bkg.) is: {sig_frac_count}")
-        sys.stdout.close()
-        sys.stdout = stdout
+        os.dup2( save, sys.stdout.fileno() )
+        newout.close()
         
         return
         

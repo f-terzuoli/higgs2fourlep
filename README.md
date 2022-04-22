@@ -17,4 +17,4 @@ Running `source setup.sh` results in appending the package root folder to the `P
 
 The project makes use of the package `pyROOT` and depends on `matplotlib`, `munch`, `PyYAML`, `sklearn` and `XGBoost`.
 
-Read the documentation at http://higgs-analysis.readthedocs.io/
+Read the documentation at https://higgs-analysis.readthedocs.io/
