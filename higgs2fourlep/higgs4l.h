@@ -1,3 +1,6 @@
+#ifndef HIGGSFOURLEP_H
+#define HIGGSFOURLEP_H
+
 #include "ROOT/RDataFrame.hxx"
 #include "ROOT/RVec.hxx"
 #include "TCanvas.h"
@@ -17,8 +20,8 @@ using rvec_f = const RVec<float> &;
 using rvec_i = const RVec<int> &;
 const auto z_mass = 91.2;
 
-
-bool GoodElectronsAndMuons(rvec_i type, rvec_f pt, rvec_f eta, rvec_f phi, rvec_f e, rvec_f trackd0pv, rvec_f tracksigd0pv, rvec_f z0)
+//Selecting leptons with high transverse momentum, within geometrical acepptance, with low long. IPs and  low transverse IP_CHI2
+bool SelectElectronsAndMuons(rvec_i type, rvec_f pt, rvec_f eta, rvec_f phi, rvec_f e, rvec_f tracksigd0pv, rvec_f z0)
 {
     for (size_t i = 0; i < type.size(); i++) {
         ROOT::Math::PtEtaPhiEVector p(pt[i] / 1000.0, eta[i], phi[i], e[i] / 1000.0);
@@ -32,7 +35,7 @@ bool GoodElectronsAndMuons(rvec_i type, rvec_f pt, rvec_f eta, rvec_f phi, rvec_
 }
 
 
-// Reconstruct two Z candidates from four leptons of the same kind
+// Identify the leading and subleading lepton pair: idx[0][i]-->leading and idx[1][i]-->subleading
 RVec<RVec<size_t>> reco_zz(rvec_f pt, rvec_f eta, rvec_f phi, rvec_f e, rvec_i charge, rvec_i type, int sumtypes)
 {
    RVec<RVec<size_t>> idx(2);
@@ -80,7 +83,7 @@ RVec<RVec<size_t>> reco_zz(rvec_f pt, rvec_f eta, rvec_f phi, rvec_f e, rvec_i c
         idx[0] = Reverse(idx[0]);
    }
 
-   // Reconstruct second Z from remaining lepton pair
+   // Reconstruct virtual Z from remaining lepton pair
    for (size_t i = 0; i < 4; i++) {
       if (i != best_i1 && i != best_i2) {
          idx[1].emplace_back(i);
@@ -94,7 +97,7 @@ RVec<RVec<size_t>> reco_zz(rvec_f pt, rvec_f eta, rvec_f phi, rvec_f e, rvec_i c
    return idx;
 }
 
-// Compute Z 4vectors from four leptons of the same kind
+// Compute Z 4vectors from four leptons and the reconstructed pairs
 std::vector<ROOT::Math::PtEtaPhiEVector> compute_z_vectors(const RVec<RVec<size_t>> &idx, rvec_f pt, rvec_f eta, rvec_f phi, rvec_f e)
 {
    std::vector<ROOT::Math::PtEtaPhiEVector> z_vectors(2);
@@ -114,7 +117,7 @@ ROOT::Math::PtEtaPhiEVector compute_H_vector(std::vector<ROOT::Math::PtEtaPhiEVe
 }
 
 
-//Order jets descending order pt
+//Order jets descending order pt, returning an ordered index
 RVec<size_t> order_jets(rvec_f pt, int n)
 {
     RVec<size_t> idx_j;
@@ -123,7 +126,7 @@ RVec<size_t> order_jets(rvec_f pt, int n)
     return Reverse(idx_j);
 }
 
-//Return an 4-dim RVec of lepton indexes: 0-1 leading pair, 2-3 subleading; in each pair the first lep is highest pt
+//Return an 4-dim RVec of lepton indexes: 0-1 leading pair, 2-3 subleading; in each pair the first lep is with negative charge
 RVec<size_t> get_idxlep(const RVec<RVec<size_t>> &idx)
 {
     RVec<size_t> idx_lep;
@@ -135,7 +138,7 @@ RVec<size_t> get_idxlep(const RVec<RVec<size_t>> &idx)
     return idx_lep;
 }
 
-// Compute lepton 4vectors from leptons variables NOT ordered
+// Compute lepton 4vectors in the Higgs c.o.m. from leptons variables: NOT ordered
 std::vector<ROOT::Math::PtEtaPhiEVector> compute_lep_vectors_com_H(rvec_f pt, rvec_f eta, rvec_f phi, rvec_f e, ROOT::Math::PtEtaPhiEVector higgs_vector)
 {
    std::vector<ROOT::Math::PtEtaPhiEVector> lep_vectors(4);
@@ -146,18 +149,19 @@ std::vector<ROOT::Math::PtEtaPhiEVector> compute_lep_vectors_com_H(rvec_f pt, rv
    return lep_vectors;
 }
 
-
+// Compute the first 4-vector in the c.o.m. relative to the given second one
 ROOT::Math::PtEtaPhiEVector com_vector(ROOT::Math::PtEtaPhiEVector daughter_vector, ROOT::Math::PtEtaPhiEVector mother_vector)
 {
     return ROOT::Math::VectorUtil::boost(daughter_vector, mother_vector.BoostToCM());
 }
 
-
+// Compute the decay angle of the letpon w.r.t. its Z boson: the lep_vec is given in the Z boson c.o.m.
 double compute_costheta12(ROOT::Math::PtEtaPhiEVector lep_vector, ROOT::Math::PtEtaPhiEVector z_vector)
 {
     return ROOT::Math::VectorUtil::CosTheta(lep_vector.Vect(), z_vector.Vect());
 }
 
+// Compute the azimuthal angle between the decay planes of the Z bosons
 double compute_phi(const ROOT::VecOps::RVec<ROOT::Math::PtEtaPhiEVector> &lep_vectors, const RVec<size_t> &idxlep, ROOT::Math::PtEtaPhiEVector z1_com_vector)
 {
     ROOT::Math::DisplacementVector3D lead_planevector = lep_vectors[idxlep[0]].Vect().Cross(lep_vectors[idxlep[1]].Vect());
@@ -171,6 +175,7 @@ double compute_phi(const ROOT::VecOps::RVec<ROOT::Math::PtEtaPhiEVector> &lep_ve
     return (cross.Dot(z1_com_vector.Vect()) < 0) ? angle : -angle;
 }
 
+// Compute the azimuthal angle between the decay plane of the real Z boson and the plane of the real Z boson with the beam line
 double compute_phi1(const ROOT::VecOps::RVec<ROOT::Math::PtEtaPhiEVector> &lep_vectors, const RVec<size_t> &idxlep, ROOT::Math::PtEtaPhiEVector z1_com_vector)
 {
     ROOT::Math::DisplacementVector3D lead_planevector = lep_vectors[idxlep[0]].Vect().Cross(lep_vectors[idxlep[1]].Vect());
@@ -185,19 +190,21 @@ double compute_phi1(const ROOT::VecOps::RVec<ROOT::Math::PtEtaPhiEVector> &lep_v
     return (cross.Dot(z1_com_vector.Vect()) < 0) ? angle : -angle;
 }
 
-
+//Adding the jet 4-vector (from jet variables) to the Higgs 4-vector (already passed as 4-vector)
 ROOT::Math::PtEtaPhiEVector add_jet(ROOT::Math::PtEtaPhiEVector start_4vector, rvec_f pt, rvec_f eta, rvec_f phi, rvec_f e, size_t i)
 {
     ROOT::Math::PtEtaPhiEVector p1(pt[i], eta[i], phi[i], e[i]);
    return start_4vector + p1;
 }
 
+//Compute the longitudinal Impact Parameter
 double compute_z0sintheta(double pt, double eta, double phi, double e, double z0)
 {
     ROOT::Math::PtEtaPhiEVector p(pt, eta, phi, e);
     return z0*sin(p.Theta());
 }
 
+//Compute the longitudinal Impact Parameter for an array of particles and return the long. IPs as RVec
 RVec<Float_t> compute_z0sinthetavec(rvec_f pt, rvec_f eta, rvec_f phi, rvec_f e, rvec_f z0)
 {
     RVec<Float_t> z0sintheta_vec;
@@ -209,6 +216,7 @@ RVec<Float_t> compute_z0sinthetavec(rvec_f pt, rvec_f eta, rvec_f phi, rvec_f e,
     return z0sintheta_vec;
 }
 
+//Given two azimuthal angle, return their difference in the [-pi,pi] range
 double compute_deltaphi(double phi1, double phi2)
 {
     double diff = phi1-phi2;
@@ -222,7 +230,7 @@ double compute_deltaphi(double phi1, double phi2)
 
 //====================================================================================
 
-
+//Selecting collimated leptons from the same Z boson
 bool filter_z_dr(const RVec<RVec<size_t>> &idx, rvec_f eta, rvec_f phi)
 {
    for (size_t i = 0; i < 2; i++) {
@@ -236,3 +244,4 @@ bool filter_z_dr(const RVec<RVec<size_t>> &idx, rvec_f eta, rvec_f phi)
    return true;
 };
 
+#endif /*HIGGSFOURLEP_H */

@@ -228,23 +228,20 @@ class AnalysisCfg(object):
             
     @SkimmedNtuplesPath.setter
     def SkimmedNtuplesPath(self, ntuples_path):
-        if self.SaveSkimmedNTuples == True or self.PrepareMLTraining == True:
-            try:
-                os.makedirs(ntuples_path)
+        try:
+            os.makedirs(ntuples_path)
+            self._SkimmedNtuplesPath = ntuples_path
+            logger.info("Setting \"{}\" as NTuples output directory".format(ntuples_path))
+            logger.info("Created \"{}\" as NTuples output directory".format(ntuples_path))
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                logger.error(e)
+            else:
+                logger.warning("NTuples output directory already exists: files might be overwritten")
                 self._SkimmedNtuplesPath = ntuples_path
-                logger.info("Setting \"{}\" as NTuples output directory".format(ntuples_path))
-                logger.info("Created \"{}\" as NTuples output directory".format(ntuples_path))
-            except OSError as e:
-                if e.errno != errno.EEXIST:
-                    logger.error(e)
-                else:
-                    logger.warning("NTuples output directory already exists: files might be overwritten")
-                    self._SkimmedNtuplesPath = ntuples_path
-            except TypeError as error:
-                logger.warning("NTuples output directory missing or of wrong type! Setting to default \"./Skimmed_NTuples\"")
-                self._SkimmedNtuplesPath = "./Skimmed_NTuples"
-        else:
-            self._SkimmedNtuplesPath = None
+        except TypeError as error:
+            logger.warning("NTuples output directory missing or of wrong type! Setting to default \"./Skimmed_NTuples\"")
+            self._SkimmedNtuplesPath = "./Skimmed_NTuples"
             
     @property
     def NThreads(self):

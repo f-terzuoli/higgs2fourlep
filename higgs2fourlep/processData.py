@@ -230,7 +230,7 @@ class HiggsProcessor(object):
                          .Define("goodjet_n", "Sum(good_jet)")
 
             # Apply additional cuts depending on lepton flavour
-            self.df[s] = self.df[s].Filter("GoodElectronsAndMuons(lep_type[good_lep], lep_pt[good_lep], lep_eta[good_lep], lep_phi[good_lep], lep_E[good_lep], lep_trackd0pvunbiased[good_lep], lep_tracksigd0pvunbiased[good_lep], lep_z0[good_lep])")
+            self.df[s] = self.df[s].Filter("SelectElectronsAndMuons(lep_type[good_lep], lep_pt[good_lep], lep_eta[good_lep], lep_phi[good_lep], lep_E[good_lep], lep_tracksigd0pvunbiased[good_lep], lep_z0[good_lep])")
 
             # Create new columns with the kinematics of good leptons
             self.df[s] = self.df[s].Define("goodlep_pt", "lep_pt[good_lep]")\
@@ -284,12 +284,12 @@ class HiggsProcessor(object):
                          .Define("phi1","compute_phi1(goodlep_CoM_H, goodlep_idx, Z1_CoM_H)")\
                          .Define("deltaphiZ1Z2","ROOT::Math::VectorUtil::DeltaPhi(Z_vector[0], Z_vector[1])")\
                          .Define("deltaphiZ1Z2com","ROOT::Math::VectorUtil::DeltaPhi(Z1_CoM_H, Z2_CoM_H)")
-
+            #Counter after lepton selection
             for r, filter in zip(self.regions, self.filterRegion):
                 region_df = self.df[s].Filter(filter)
                 self.count[r]['lepSel'][s] = region_df.Count()
                 self.count_w[r]['lepSel'][s] = region_df.Sum("weight")
-                
+        #Higgs is reconstructed: save Ntuple (optional)
         self.reconstructedHiggs = True
         if self.cfg.SaveSkimmedNTuples == True:
             self.saveNTuples(False)
@@ -317,13 +317,13 @@ class HiggsProcessor(object):
         for r in self.regions:
             self.count[r]['RecoCut'] = {}
             self.count_w[r]['RecoCut'] = {}
-
+        #Select on reconstructed masses
         for s in self.samples:
             self.df[s] = self.df[s].Filter("m4l>80. && m4l<170.")\
                          .Filter("mZ1 > 50. && mZ1 < 106.")\
                          .Filter("((mZ2 > (12. + 0.76 * (m4l - 140.)) && m4l > 140.) || (mZ2 > 12 && m4l <= 140.)) && mZ2 < 115.")\
                          .Filter("filter_z_dr(Z_idx, goodlep_eta, goodlep_phi)")
-                         
+            #Counter after selections on reconstructed masses
             for r, filter in zip(self.regions, self.filterRegion):
                 region_df = self.df[s].Filter(filter)
                 self.count[r]['RecoCut'][s] = region_df.Count()
@@ -352,7 +352,7 @@ class HiggsProcessor(object):
         for r in self.regions:
             self.count[r]['TightCut'] = {}
             self.count_w[r]['TightCut'] = {}
-        
+        #Tighter selectionon Higgs mass window and jet multiplicity
         for s in self.samples:
             self.df[s] = self.df[s].Filter("m4l>110. && m4l<132.5 && goodjet_n<3.")
             for r, filter in zip(self.regions, self.filterRegion):
@@ -367,6 +367,7 @@ class HiggsProcessor(object):
         Method for triggering the loop over the samples using implicit multithreading of ROOT and also parallelize the loop over different samples.
         
         """
+        #Append all RDF::RNodes to the list self.nodes and feed it to RDF.RunGraphs
         for s in self.samples:
             for r in self.regions:
                 dummycounter = self.count[r]
@@ -452,6 +453,8 @@ class HiggsProcessor(object):
                 region_df_1jet = self.df_1jet[s].Filter(filter)
                 region_df_2jet = self.df_2jet[s].Filter(filter)
                 self.histos[s][r] = {}
+                
+                #BOSONS
                 self.histos[s][r]['m4l'] = region_df.Histo1D(ROOT.RDF.TH1DModel(s, "m4l", 24, 80, 170), "m4l", "weight")
                 self.histos[s][r]['pt4l'] = region_df.Histo1D(ROOT.RDF.TH1DModel(s, "pt4l", 24, 0, 200), "pt4l", "weight")
                 self.histos[s][r]['eta4l'] = region_df.Histo1D(ROOT.RDF.TH1DModel(s, "eta4l", 12, -6, 6), "eta4l", "weight")
@@ -521,7 +524,7 @@ class HiggsProcessor(object):
                 self.histos[s][r]['deltaetaJJ'] = region_df_2jet.Define("deltaetaJJ","TMath::Abs(goodjet_eta[goodjet_idx[0]] - goodjet_eta[goodjet_idx[1]])").Histo1D(ROOT.RDF.TH1DModel(s, "deltaetaJJ", 12, 0, 5), "deltaetaJJ", "weight")
                 self.histos[s][r]['deltaphiJJ'] = region_df_2jet.Define("deltaphiJJ","compute_deltaphi(goodjet_phi[goodjet_idx[0]], goodjet_phi[goodjet_idx[1]])").Histo1D(ROOT.RDF.TH1DModel(s, "deltaphiJJ", 10, pi_inf, pi_sup), "deltaphiJJ", "weight")
                 
-                
+                #LEPTONS
                 self.histos[s][r]['pt1'] = region_df.Define("pt1", "goodlep_pt[goodlep_idx[0]]/1000.").Histo1D(ROOT.RDF.TH1DModel(s, "pt1", 24, 5, 200), "pt1", "weight")
                 self.histos[s][r]['pt2'] = region_df.Define("pt2", "goodlep_pt[goodlep_idx[1]]/1000.").Histo1D(ROOT.RDF.TH1DModel(s, "pt2", 24, 5, 200), "pt2", "weight")
                 self.histos[s][r]['pt3'] = region_df.Define("pt3", "goodlep_pt[goodlep_idx[2]]/1000.").Histo1D(ROOT.RDF.TH1DModel(s, "pt3", 24, 5, 200), "pt3", "weight")
@@ -682,10 +685,6 @@ class HiggsProcessor(object):
                     
                     axis_label = xaxislabel + xaxisunit
 
-                    # Apply MC correction for ZZ due to missing gg->ZZ process
-                    #zz[observable].Scale(1.4)
-
-                    # Create the plot
                     
                     # Set styles
                     ROOT.gROOT.SetStyle("ATLAS")
@@ -800,7 +799,7 @@ class HiggsProcessor(object):
                     pad1[observable].cd()
                     pad1[observable].GetFrame().SetY1(2)
                     pad1[observable].Draw()
-                    
+                    #Ratio plots
                     h_ratio[observable] = data[observable].Clone("h_ratio_{}".format(observable))
                     h_ratio[observable].Divide(htemp)
                     h_ratio[observable].GetYaxis().SetTitle("Data / Pred   ")
@@ -835,9 +834,7 @@ class HiggsProcessor(object):
                     h_ratio[observable].SetMarkerSize(0.6)
                     h_ratio[observable].SetLineWidth(1)
                     
-                    #h_ratio[observable].GetYaxis().ChangeLabel(2,-1,-1, 32)
-                    
-                    #data[observable].GetXaxis().SetLabelSize(0)
+
                     ROOT.gPad.RedrawAxis()
                     
                     pad1[observable].cd()
@@ -860,7 +857,6 @@ class HiggsProcessor(object):
                     
                     ROOT.gPad.RedrawAxis()
                     
-                    #c[observable].Update()
 
                     # Save the plot
                     c[observable].SaveAs("{}/{}/{}/{}.pdf".format(self.cfg.OutputHistosPath, out_folder, r, observable))
@@ -907,11 +903,11 @@ class HiggsProcessor(object):
         :type bdt: bool
         
         """
+        #Step tag accounting for halved MC simulation in case of testing/training and consequent reweighing
         if not bdt: step = list(self.count[self.regions[0]])[-1]
         else: step='bdt'
-        # We create RooFit variables that will represent the dataset.
+        # Create RooFit variables
         x = ROOT.RooRealVar("x", "m_{4l}", 110, 140, "GeV")
-        #x.setBins(25)
         w = ROOT.RooRealVar("w", "w", -1.0, 10.0)
         
         setperSamp =  {}
@@ -920,15 +916,14 @@ class HiggsProcessor(object):
                 dummyDataset = self.df[s].Filter("bdt==1").Book(ROOT.std.move(ROOT.RooDataSetHelper("dataset_"+s, "Four lepton mass distribution", ROOT.RooArgSet(x,w))), ("m4l", "weight2"))
             else:
                 dummyDataset = self.df[s].Book(ROOT.std.move(ROOT.RooDataSetHelper("dataset_"+s, "Four lepton mass distribution", ROOT.RooArgSet(x,w))), ("m4l", "weight"))
-            #dummyDataset.Print()
+            
             setperSamp[s] = ROOT.RooDataSet(dummyDataset.GetName(), dummyDataset.GetTitle(), dummyDataset.GetPtr(), dummyDataset.get(), "", w.GetName())
-            #setperSamp[s].Print()
-        
+        #Creating the datasets
         bkg_inclusive=ROOT.RooDataSet("dataset_Data", "Four lepton mass distribution", ROOT.RooArgSet(x,w), w.GetName())
         sig_inclusive=ROOT.RooDataSet("dataset_Higgs", "Four lepton mass distribution", ROOT.RooArgSet(x,w), w.GetName())
         data_set=ROOT.RooDataSet("dataset_Bkg", "Four lepton mass distribution", ROOT.RooArgSet(x,w), w.GetName())
         
-        
+        #Adding datato the datasets
         for s in self.samples:
             print(s)
             setperSamp[s].Print()
@@ -938,22 +933,22 @@ class HiggsProcessor(object):
                 sig_inclusive.append(setperSamp[s])
             else:
                 bkg_inclusive.append(setperSamp[s])
-                
+        #Calculate signal fraction for fit
         sig_frac_count = sig_inclusive.sumEntries()/(sig_inclusive.sumEntries() + bkg_inclusive.sumEntries())
         
-        
+        #KDE for background
         p2 = ROOT.RooKeysPdf("p2", "p2", x, bkg_inclusive, ROOT.RooKeysPdf.MirrorBoth)
-        
+        #Parameters and model for signal fit
         meanHiggs = ROOT.RooRealVar("meanHiggs", "The Higgs Mass CB", 123, 115, 135)
         sigmaHiggs = ROOT.RooRealVar("sigmaHiggs", "The width of Higgs mass CB", 5, 0., 20)
         alphaHiggs = ROOT.RooRealVar("alphaHiggs", "The alpha of Higgs mass CB", 1.5, -5, 5)
         nHiggs = ROOT.RooRealVar("nHiggs", "The n of Higgs mass CB", 1.5, 0, 10)
         CBHiggs = ROOT.RooCBShape("CBHiggs","The Higgs Crystall Ball",x,meanHiggs,sigmaHiggs,alphaHiggs,nHiggs)
-        
+        #Unbinned ML fit to signal
         fitHiggs = CBHiggs.fitTo(sig_inclusive, ROOT.RooFit.Save(True), ROOT.RooFit.AsymptoticError(True))
         
         fitHiggs.Print("v")
-        
+        #Parameters and model for data fit
         meanHiggs_data = ROOT.RooRealVar("m_{H}", "The Higgs Mass CB", 123, 115, 135, "GeV")
         sigmaHiggs_data = ROOT.RooRealVar("#Gamma_{H}", "The width of Higgs mass CB", sigmaHiggs.getValV(), "GeV")
         alphaHiggs_data = ROOT.RooRealVar("alphaHiggs_data", "The alpha of Higgs mass CB", alphaHiggs.getValV())
@@ -963,44 +958,42 @@ class HiggsProcessor(object):
         sigfrac= ROOT.RooRealVar("sigfrac", "fraction signal fraction", sig_frac_count)
         
         model = ROOT.RooAddPdf("model", "Higgs+irred. bkg", ROOT.RooArgList(CBHiggs_data, p2), sigfrac)
-        
+        #Unbinned ML fit to data
         fitdata = model.fitTo(data_set, ROOT.RooFit.Save(True), Minos=True, NumCPU=14)
         fitdata.Print("v")
-        print("fraction")
+        print("Fraction sig/bkg is:")
         print( sig_frac_count)
         
         # Plot weighted data and fit result
-        # ---------------------------------------------------------------
         x.setBins(12)
         # Construct plot frame
         frame = x.frame(ROOT.RooFit.Title("KDE of Background"))
 
-        # Plot data using sum-of-weights-squared error rather than Poisson errors
+        # Plot bkg accounting for weights
         bkg_inclusive.plotOn(frame, DataError="SumW2")
 
-        # Overlay result of 2nd order polynomial fit to weighted data
+        # Overlay KDE bkg
         p2.plotOn(frame, LineColor="kOrange")
         
         
         # Construct plot frame
         frame2 = x.frame(ROOT.RooFit.Title("Unbinned ML fit to Signal"))
 
-        # Plot data using sum-of-weights-squared error rather than Poisson errors
+        # Plot signal accounting for weights
         sig_inclusive.plotOn(frame2, DataError="SumW2")
 
-        # Overlay result of 2nd order polynomial fit to weighted data
+        # Overlay CrystalBall fit
         CBHiggs.plotOn(frame2)
-
+        
+        #Create canvas for MC mass ditributions
         canv2 = ROOT.TCanvas("Canvas2", "Canvas2", 800, 400)
         canv2.Divide(2)
         canv2.cd(2)
         ROOT.gPad.SetLeftMargin(0.18)
-        #ROOT.gPad.SetTopMargin(0.15)
         frame.GetYaxis().SetTitleOffset(1.8)
         frame.Draw()
         canv2.cd(1)
         ROOT.gPad.SetLeftMargin(0.18)
-        #ROOT.gPad.SetTopMargin(0.15)
         frame2.GetYaxis().SetTitleOffset(1.8)
         frame2.Draw()
         canv2.SaveAs(f"{self.cfg.OutputHistosPath}/fit_{step}.pdf(")
@@ -1008,21 +1001,47 @@ class HiggsProcessor(object):
         # Construct plot frame
         frame_data = x.frame(ROOT.RooFit.Title("Data"))
 
-        # Plot data using sum-of-weights-squared error rather than Poisson errors
-        data_set.plotOn(frame_data)
-        
-        model.plotOn(frame_data, LineColor="r")
+        # Plot data
+        data_set.plotOn(frame_data, Name="data")
+        #Signal+bkg model with a full line
+        model.plotOn(frame_data, Name="model", LineColor="r")
 
-        #Overlay the background component of model with a dashed line
-        model.plotOn(frame_data,Components={p2},MoveToBack=True, DrawOption="F", FillColor="kOrange")
-        #Overlay the background+sig2 components of model with a dotted line
-        model.plotOn(frame_data,Components={CBHiggs_data},LineStyle="--")
-        model.paramOn(frame_data, ROOT.RooFit.Format("NEU",ROOT.RooFit.AutoPrecision(2)))
-        canv = ROOT.TCanvas("Canvas", "Canvas", 400, 400)
-        canv.cd()
-        ROOT.gPad.SetLeftMargin(0.18)
+        #Background component of model with filled orange
+        model.plotOn(frame_data,Name="zz",Components={p2},MoveToBack=True, DrawOption="F", FillColor="kOrange", LineWidth=0)
+        #Signal component of model with a dashed line
+        model.plotOn(frame_data,Name="higgs",Components={CBHiggs_data},LineStyle="--")
+        model.paramOn(frame_data, ROOT.RooFit.Format("NEU"),ROOT.RooFit.AutoPrecision(2), ROOT.RooFit.Layout(0.60,0.85, 0.95))
         frame_data.GetYaxis().SetTitleOffset(1.8)
         frame_data.Draw()
+        
+        #Legend
+        legend = None
+        legend = ROOT.TLegend(0.60, 0.60, 0.90, 0.82)
+        legend.SetTextFont(42)
+        legend.SetFillStyle(0)
+        legend.SetBorderSize(0)
+        legend.SetTextSize(0.03)
+        legend.SetTextAlign(32)
+        legend.AddEntry("data", "Data" ,"ep")
+        legend.AddEntry("model", "Higgs+bkg", "l")
+        legend.AddEntry("higgs", "Higgs", "l")
+        legend.AddEntry("zz", "ZZ bkg", "f")
+        legend.Draw("SAME")
+        
+        # Add ATLAS label
+        text = None
+        text = ROOT.TLatex()
+        text.SetNDC()
+        text.SetTextFont(72)
+        text.SetTextSize(0.032)
+        text.DrawLatex(0.21, 0.86, "ATLAS")
+        text.SetTextFont(42)
+        text.DrawLatex(0.21 + 0.1, 0.86, "Open Data")
+        text.SetTextSize(0.028)
+        text.DrawLatex(0.21, 0.82, "#sqrt{s} = 13 TeV, 10 fb^{-1}")
+        text.SetTextSize(0.032)
+        text.DrawLatex(0.21, 0.77, "H #rightarrow ZZ* #rightarrow 4l")
+        
         canv.SaveAs(f"{self.cfg.OutputHistosPath}/fit_{step}.pdf)")
         
     
