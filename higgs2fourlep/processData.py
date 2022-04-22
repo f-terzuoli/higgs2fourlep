@@ -970,20 +970,20 @@ class HiggsProcessor(object):
         frame = x.frame(ROOT.RooFit.Title("KDE of Background"))
 
         # Plot bkg accounting for weights
-        bkg_inclusive.plotOn(frame, DataError="SumW2")
+        bkg_inclusive.plotOn(frame, DataError="SumW2", Name="MCbkg")
 
         # Overlay KDE bkg
-        p2.plotOn(frame, LineColor="kOrange")
+        p2.plotOn(frame, MoveToBack=True, DrawOption="F", FillColor="kOrange", Name="KDEbkg", LineWidth=0)
         
         
         # Construct plot frame
         frame2 = x.frame(ROOT.RooFit.Title("Unbinned ML fit to Signal"))
 
         # Plot signal accounting for weights
-        sig_inclusive.plotOn(frame2, DataError="SumW2")
+        sig_inclusive.plotOn(frame2, DataError="SumW2", Name="MCHiggs")
 
         # Overlay CrystalBall fit
-        CBHiggs.plotOn(frame2)
+        CBHiggs.plotOn(frame2, Name="CrystB")
         
         #Create canvas for MC mass ditributions
         canv2 = ROOT.TCanvas("Canvas2", "Canvas2", 800, 400)
@@ -992,10 +992,62 @@ class HiggsProcessor(object):
         ROOT.gPad.SetLeftMargin(0.18)
         frame.GetYaxis().SetTitleOffset(1.8)
         frame.Draw()
+        #Legend
+        legend1 = None
+        legend1 = ROOT.TLegend(0.60, 0.74, 0.9, 0.9)
+        legend1.SetTextFont(42)
+        legend1.SetFillStyle(0)
+        legend1.SetBorderSize(0)
+        legend1.SetTextSize(0.03)
+        legend1.SetTextAlign(32)
+        legend1.AddEntry("MCbkg", "MC bkg." ,"ep")
+        legend1.AddEntry("KDEbkg", "KDE bkg.", "f")
+        legend1.Draw("SAME")
+        
+        # Add ATLAS label
+        text1 = None
+        text1 = ROOT.TLatex()
+        text1.SetNDC()
+        text1.SetTextFont(72)
+        text1.SetTextSize(0.032)
+        text1.DrawLatex(0.21, 0.86, "ATLAS")
+        text1.SetTextFont(42)
+        text1.DrawLatex(0.21 + 0.13, 0.86, "Open Data")
+        text1.SetTextSize(0.028)
+        text1.DrawLatex(0.21, 0.82, "#sqrt{s} = 13 TeV, 10 fb^{-1}")
+        text1.SetTextSize(0.032)
+        text1.DrawLatex(0.21, 0.77, "H #rightarrow ZZ* #rightarrow 4l")
+        
+        
         canv2.cd(1)
         ROOT.gPad.SetLeftMargin(0.18)
         frame2.GetYaxis().SetTitleOffset(1.8)
         frame2.Draw()
+        #Legend
+        legend2 = None
+        legend2 = ROOT.TLegend(0.60, 0.74, 0.9, 0.9)
+        legend2.SetTextFont(42)
+        legend2.SetFillStyle(0)
+        legend2.SetBorderSize(0)
+        legend2.SetTextSize(0.03)
+        legend2.SetTextAlign(32)
+        legend2.AddEntry("MCHiggs", "MC Higgs" ,"ep")
+        legend2.AddEntry("CrystB", "Cryst.Ball fit", "l")
+        legend2.Draw("SAME")
+        
+        # Add ATLAS label
+        text2 = None
+        text2 = ROOT.TLatex()
+        text2.SetNDC()
+        text2.SetTextFont(72)
+        text2.SetTextSize(0.032)
+        text2.DrawLatex(0.21, 0.86, "ATLAS")
+        text2.SetTextFont(42)
+        text2.DrawLatex(0.21 + 0.13, 0.86, "Open Data")
+        text2.SetTextSize(0.028)
+        text2.DrawLatex(0.21, 0.82, "#sqrt{s} = 13 TeV, 10 fb^{-1}")
+        text2.SetTextSize(0.032)
+        text2.DrawLatex(0.21, 0.77, "H #rightarrow ZZ* #rightarrow 4l")
         canv2.SaveAs(f"{self.cfg.OutputHistosPath}/fit_{step}.pdf(")
         
         # Construct plot frame
@@ -1043,6 +1095,20 @@ class HiggsProcessor(object):
         text.DrawLatex(0.21, 0.77, "H #rightarrow ZZ* #rightarrow 4l")
         
         canv.SaveAs(f"{self.cfg.OutputHistosPath}/fit_{step}.pdf)")
+        
+        #Export the fits results
+        stdout = sys.stdout
+        sys.stdout = open(f"{self.cfg.OutputHistosPath}/fit_mass.log", 'w')
+        print(f"############ FIT MASS @ {step} ##############")
+        print("Signal CrystalBall fit")
+        fitHiggs.Print("v")
+        print("Signal data fit")
+        fitdata.Print("v")
+        print(f"Fraction sig/(sig.+bkg.) is: {sig_frac_count}")
+        sys.stdout.close()
+        sys.stdout = stdout
+        
+        return
         
     
 if __name__ == "__main__":
