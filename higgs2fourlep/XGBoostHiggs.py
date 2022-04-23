@@ -149,6 +149,8 @@ def traintest(cfg):
     plt.plot(results['validation_1']['logloss'], label='test')
     #plt.ylim([0, 0.7])
     #plt.yscale('log')
+    plt.xlabel('Epochs')
+    plt.ylabel('LogLoss')
     plt.grid()
     # show the legend
     plt.legend()
